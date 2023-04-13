@@ -4,8 +4,6 @@ from PIL import ImageFile
 from io import BytesIO
 import base64
 from torchvision import transforms
-from streamlit_modal import Modal
-import streamlit.components.v1 as components
 from st_clickable_images import clickable_images
 
 if "image_buffers" not in st.session_state:
