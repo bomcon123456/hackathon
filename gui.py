@@ -12,9 +12,11 @@ IMAGE_SIZE = 512
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 st.set_page_config(layout="wide", page_title="Gennaissance")
 
+
 @st.cache_data(persist="disk", show_spinner=True)
 def getmodels():
     return init_model()
+
 
 f, tokenizer, noise_scheduler, vae = getmodels()
 
@@ -115,24 +117,28 @@ else:
                     "flex-wrap": "wrap",
                 },
                 img_style={"margin": "5px", "height": "300px", "width": "300px"},
+                key="left",
             )
         b64_final_images = None
-        if clicked is not None:
+        if len(base64_imgs) > 0:
             gc1, gc2, gc3, gc4, gc5 = st.columns(5)
             with gc2:
                 infer = st.button("Protect me!")
                 if infer:
-                    final_images = run(f, tokenizer, noise_scheduler, vae, pil_imgs)
+                    with st.spinner("Cloaking your images..."):
+                        final_images = run(f, tokenizer, noise_scheduler, vae, pil_imgs)
                     b64_final_images = []
                     for fimg in final_images:
-                        fimg.save("test.png")
-                        # buffered = BytesIO()
-                        # fimg.save(buffered, format="JPEG")
-                        # img_str = base64.b64encode(buffered.getvalue())
-                        # b64_final_images.append(f"data:image/jpeg;base64,{img_str}")
-        if b64_final_images is not None:
+                        im_file = BytesIO()
+                        fimg.save(im_file, format="JPEG")
+                        im_bytes = (
+                            im_file.getvalue()
+                        )  # im_bytes: image in binary format.
+                        im_b64 = base64.b64encode(im_bytes).decode("utf-8")
+                        b64_final_images.append(f"data:image/jpeg;base64,{im_b64}")
+
+        if b64_final_images is not None and c2 is not None:
             with c2:
-                st.text("WTF I SHOULD BE HERE")
                 newclicked = clickable_images(
                     b64_final_images,
                     titles=[f"Image #{str(i)}" for i in range(len(b64_final_images))],
@@ -142,4 +148,5 @@ else:
                         "flex-wrap": "wrap",
                     },
                     img_style={"margin": "5px", "height": "300px", "width": "300px"},
+                    key="right",
                 )
