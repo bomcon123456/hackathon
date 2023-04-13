@@ -44,6 +44,7 @@ width: 100%;
 background-color: grey;
 color: black;
 text-align: center;
+z-index: 9999;
 }
 </style>
 <div class="footer">
